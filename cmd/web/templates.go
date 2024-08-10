@@ -11,8 +11,9 @@ import (
 
 type templateData struct {
 	CurrentYear int
-	Snippet     models.Snippet   `json:"snippet,omitempty"`
-	Snippets    []models.Snippet `json:"snippets,omitempty"`
+	Snippet     models.Snippet   
+	Snippets    []models.Snippet
+	Form any
 }
 
 func humanDate(t time.Time) string{
