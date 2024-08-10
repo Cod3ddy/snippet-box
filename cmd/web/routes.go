@@ -1,6 +1,10 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/justinas/alice"
+)
 
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
@@ -17,7 +21,9 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
-	middleware :=app.recoverPanic(app.logRequest(commonHeaders(mux)))
+	// middleware chain containt 'standard' middleware.
+	standard := alice.New(app.recoverPanic, app.logRequest, commonHeaders)
+
 	//Wrap the existing chain with the logRequest middleware
-	return middleware
+	return standard.Then(mux)
 }
