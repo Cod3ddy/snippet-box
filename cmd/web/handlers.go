@@ -7,7 +7,15 @@ import (
 	"strconv"
 
 	"github.com/Cod3ddy/snippet-box/internal/models"
+	"github.com/Cod3ddy/snippet-box/internal/validator"
 )
+
+type snippetCreateForm struct{
+	Title string
+	Content string
+	Expires int
+	validator.Validator
+}
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	snippets, err := app.Snippets.Latest()
@@ -47,32 +55,47 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {
 	data := app.newTemplateData(r)
-
+	data.Form = snippetCreateForm{
+		Expires: 365,
+	}
 	app.render(w, r, http.StatusOK, "create.html", data)
 }
 
 func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
+	var form snippetCreateForm
+
+	err := app.decodePostForm(r, &form)
 	if err != nil{
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	title := r.PostForm.Get("title")
-	content := r.PostForm.Get("content")
-	expires, err := strconv.Atoi(r.PostForm.Get("expires"))
-
+	err = app.FormDecoder.Decode(&form, r.PostForm)
 	if err != nil{
 		app.clientError(w, http.StatusBadRequest)
+	}
+
+	//Perfom validation 
+  	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
+    form.CheckField(validator.MaxChars(form.Title, 100), "title", "This field cannot be more than 100 characters long")
+    form.CheckField(validator.NotBlank(form.Content), "content", "This field cannot be blank")
+    form.CheckField(validator.PermittedValue(form.Expires, 1, 7, 365), "expires", "This field must equal 1, 7 or 365")
+
+	
+
+	// If any error,dump in plain textg HTTP response 
+	if !form.Valid(){
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity,"create.html", data)
 		return
 	}
 
-	id, err := app.Snippets.Insert(title, content, expires)
+	id, err := app.Snippets.Insert(form.Title, form.Content, form.Expires)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	// Redirect the user to the relevant page for the snippet
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
