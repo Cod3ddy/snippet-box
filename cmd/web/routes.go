@@ -2,7 +2,7 @@ package main
 
 import "net/http"
 
-func (app *application) routes() *http.ServeMux {
+func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	//Note the path directory given to the http.Dir function is relative to the project directory root.
@@ -17,5 +17,7 @@ func (app *application) routes() *http.ServeMux {
 	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
 	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
 
-	return mux
+	middleware :=app.recoverPanic(app.logRequest(commonHeaders(mux)))
+	//Wrap the existing chain with the logRequest middleware
+	return middleware
 }
