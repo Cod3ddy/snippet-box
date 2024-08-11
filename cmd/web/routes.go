@@ -9,8 +9,6 @@ import (
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
-	//Note the path directory given to the http.Dir function is relative to the project directory root.
-
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 
 	//using the mux.Handle() to register the file server as the hande for all the URL paths that start with "/static/" . For matching paths, we strip the "/static" before the request reaches the file server.
