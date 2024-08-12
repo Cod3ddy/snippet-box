@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/form/v4"
 )
@@ -76,4 +77,11 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 	}
 
 	return nil
+ }
+
+ func (app *application) newTemplateData(r *http.Request) templateData{
+	return templateData{
+		CurrentYear: time.Now().Year(),
+		Flash: app.SessionManger.PopString(r.Context(), "flash"),
+	}
  }
