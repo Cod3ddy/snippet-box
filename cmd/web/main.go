@@ -20,8 +20,9 @@ import (
 type application struct {
 	Logger        *slog.Logger
 	Snippets      *models.SnippetModel
+	Users         *models.UserModel
 	TemplateCache map[string]*template.Template
-	FormDecoder *form.Decoder
+	FormDecoder   *form.Decoder
 	SessionManger *scs.SessionManager
 }
 
@@ -58,8 +59,9 @@ func main() {
 	app := application{
 		Logger:        logger,
 		Snippets:      &models.SnippetModel{DB: db},
+		Users:         &models.UserModel{DB: db},
 		TemplateCache: templateCache,
-		FormDecoder: formDecoder,
+		FormDecoder:   formDecoder,
 		SessionManger: sessionManager,
 	}
 
@@ -68,12 +70,12 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr: *addr,
-		Handler: app.routes(),
-		ErrorLog: slog.NewLogLogger(logger.Handler(), slog.LevelError),
-		TLSConfig: tlsConfig,
-		IdleTimeout: time.Minute,
-		ReadTimeout: 5 * time.Second,
+		Addr:         *addr,
+		Handler:      app.routes(),
+		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
 
@@ -92,7 +94,6 @@ func openDB(dsn string) (*sql.DB, error) {
 	}
 
 	err = db.Ping()
-
 	if err != nil {
 		db.Close()
 		return nil, err
