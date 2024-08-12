@@ -47,11 +47,8 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	flash := app.SessionManger.PopString(r.Context(), "flash")
-
 	data := app.newTemplateData(r)
 	data.Snippet = snippet
-	data.Flash = flash
 	//Use render helper
 	app.render(w, r, http.StatusOK, "view.html", data)
 }
