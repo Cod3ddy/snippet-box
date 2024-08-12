@@ -83,5 +83,13 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		CurrentYear: time.Now().Year(),
 		Flash:       app.SessionManger.PopString(r.Context(), "flash"),
+		IsAuthenticated: app.isAuthenticated(r),
 	}
+}
+
+//Return true if the current request is from an authenticated user,
+// otherwise return false
+
+func (app *application) isAuthenticated(r *http.Request)bool{
+	return app.SessionManger.Exists(r.Context(), "authenticatedUserID")
 }
