@@ -4,3 +4,6 @@ tasks:
   run:
     cmds:
       - go run ./cmd/web/
+  build:
+      cmds:
+      - go build -o ./cmd/web/snippet.exe ./cmd/web/
