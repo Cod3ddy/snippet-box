@@ -24,6 +24,12 @@ type userSignUpForm struct {
 	validator.Validator
 }
 
+type userLoginForm struct {
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	validator.Validator `form:"-"`
+}
+
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	snippets, err := app.Snippets.Latest()
 	if err != nil {
@@ -115,7 +121,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	// Parse the form data into the usersignUpForm struct
 	err := app.decodePostForm(r, &form)
-	if err != nil{
+	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
@@ -123,12 +129,12 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	// Validate the form contents
 	form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
 	form.CheckField(validator.NotBlank(form.Email), "email", "This field cannot be blank")
-	form.CheckField(validator.Matches(form.Email, validator.EmailRX),"email", "This field must be a valid email address")
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "This field must be a valid email address")
 	form.CheckField(validator.NotBlank(form.Password), "password", "This field cannot be blank")
-	form.CheckField(validator.MinChars(form.Password, 8),"password", "The password must be atleast 8 characters long")
+	form.CheckField(validator.MinChars(form.Password, 8), "password", "The password must be atleast 8 characters long")
 
 	// If any error
-	if !form.Valid(){
+	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, "signup.html", data)
@@ -136,14 +142,14 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = app.Users.Insert(form.Name, form.Email, form.Password)
-	if err != nil{
-		if errors.Is(err, models.ErrDuplicateEmail){
+	if err != nil {
+		if errors.Is(err, models.ErrDuplicateEmail) {
 			form.AddFieldError("email", "Email is already in use")
 
 			data := app.newTemplateData(r)
 			data.Form = form
-			app.render(w,r, http.StatusUnprocessableEntity, "signup.html", data)
-		}else{
+			app.render(w, r, http.StatusUnprocessableEntity, "signup.html", data)
+		} else {
 			app.serverError(w, r, err)
 		}
 		return
@@ -155,7 +161,9 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Display a form for logging in a user...")
+	data := app.newTemplateData(r)
+	data.Form = userLoginForm{}
+	app.render(w, r, http.StatusOK, "login.html", data)
 }
 
 func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
