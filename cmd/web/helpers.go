@@ -48,7 +48,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 		return
 	}
 
-	//Write out the provided HTTP status code ('200 OK', '400 Bad Request' etc).
+	// Write out the provided HTTP status code ('200 OK', '400 Bad Request' etc).
 	w.WriteHeader(status)
 
 	// Execute the template set and write the response body. Again, if there
@@ -57,31 +57,31 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 	buf.WriteTo(w)
 }
 
- // Create a new decodePostForm() helper method. The second parameter here, dst,
- // is the target destination that we want to decode the form data into.
+// Create a new decodePostForm() helper method. The second parameter here, dst,
+// is the target destination that we want to decode the form data into.
 
- func (app *application) decodePostForm(r *http.Request, dst any) error{
+func (app *application) decodePostForm(r *http.Request, dst any) error {
 	err := r.ParseForm()
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
 	err = app.FormDecoder.Decode(dst, r.PostForm)
-	if err != nil{
+	if err != nil {
 		var invalidDecodeError *form.InvalidDecoderError
 
-		if errors.As(err, &invalidDecodeError){
+		if errors.As(err, &invalidDecodeError) {
 			panic(err)
 		}
 		return err
 	}
 
 	return nil
- }
+}
 
- func (app *application) newTemplateData(r *http.Request) templateData{
+func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		CurrentYear: time.Now().Year(),
-		Flash: app.SessionManger.PopString(r.Context(), "flash"),
+		Flash:       app.SessionManger.PopString(r.Context(), "flash"),
 	}
- }
+}

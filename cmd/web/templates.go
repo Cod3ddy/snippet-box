@@ -10,13 +10,13 @@ import (
 
 type templateData struct {
 	CurrentYear int
-	Snippet     models.Snippet   
+	Snippet     models.Snippet
 	Snippets    []models.Snippet
-	Form any
-	Flash string
+	Form        any
+	Flash       string
 }
 
-func humanDate(t time.Time) string{
+func humanDate(t time.Time) string {
 	return t.Format("02 Jan 2006 at 15:04")
 }
 
@@ -43,11 +43,11 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	// Loop through the page Filepaths one-by-one.
 	for _, page := range pages {
 		// Extract the file name (like 'home.html or tmpl') from the full filepath
-		//and assign it to the name variable
+		// and assign it to the name variable
 
 		name := filepath.Base(page)
 
-		//Parse the base template file into a template set.
+		// Parse the base template file into a template set.
 
 		// The template.FuncMap must be registered with template set before you call
 		// the ParseFiles() method. This means we have to use tempalate.New()
@@ -80,4 +80,3 @@ func newTemplateCache() (map[string]*template.Template, error) {
 
 	return cache, nil
 }
-

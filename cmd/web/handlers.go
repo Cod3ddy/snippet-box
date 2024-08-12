@@ -10,10 +10,10 @@ import (
 	"github.com/Cod3ddy/snippet-box/internal/validator"
 )
 
-type snippetCreateForm struct{
-	Title string `form:"title"`
-	Content string `form:"content"`
-	Expires int	`form:"expires"`
+type snippetCreateForm struct {
+	Title               string `form:"title"`
+	Content             string `form:"content"`
+	Expires             int    `form:"expires"`
 	validator.Validator `form:"-"`
 }
 
@@ -26,7 +26,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	data := app.newTemplateData(r)
 	data.Snippets = snippets
-	//Use render helper
+	// Use render helper
 	app.render(w, r, http.StatusOK, "home.html", data)
 }
 
@@ -49,7 +49,7 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 
 	data := app.newTemplateData(r)
 	data.Snippet = snippet
-	//Use render helper
+	// Use render helper
 	app.render(w, r, http.StatusOK, "view.html", data)
 }
 
@@ -65,24 +65,22 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	var form snippetCreateForm
 
 	err := app.decodePostForm(r, &form)
-	if err != nil{
+	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
 		return
 	}
 
-	//Perfom validation 
-  	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
-    form.CheckField(validator.MaxChars(form.Title, 100), "title", "This field cannot be more than 100 characters long")
-    form.CheckField(validator.NotBlank(form.Content), "content", "This field cannot be blank")
-    form.CheckField(validator.PermittedValue(form.Expires, 1, 7, 365), "expires", "This field must equal 1, 7 or 365")
+	// Perfom validation
+	form.CheckField(validator.NotBlank(form.Title), "title", "This field cannot be blank")
+	form.CheckField(validator.MaxChars(form.Title, 100), "title", "This field cannot be more than 100 characters long")
+	form.CheckField(validator.NotBlank(form.Content), "content", "This field cannot be blank")
+	form.CheckField(validator.PermittedValue(form.Expires, 1, 7, 365), "expires", "This field must equal 1, 7 or 365")
 
-	
-
-	// If any error,dump in plain textg HTTP response 
-	if !form.Valid(){
+	// If any error,dump in plain textg HTTP response
+	if !form.Valid() {
 		data := app.newTemplateData(r)
 		data.Form = form
-		app.render(w, r, http.StatusUnprocessableEntity,"create.html", data)
+		app.render(w, r, http.StatusUnprocessableEntity, "create.html", data)
 		return
 	}
 
@@ -100,17 +98,21 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 }
 
 func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, "Display a form for signing up a new user...")
- }
- func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, "Create a new user...")
- }
- func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, "Display a form for logging in a user...")
- }
- func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, "Authenticate and login the user...")
- }
- func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintln(w, "Logout the user...")
- }
+	fmt.Fprintln(w, "Display a form for signing up a new user...")
+}
+
+func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Create a new user...")
+}
+
+func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Display a form for logging in a user...")
+}
+
+func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Authenticate and login the user...")
+}
+
+func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "Logout the user...")
+}
