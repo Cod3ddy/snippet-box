@@ -14,7 +14,7 @@ func (app *application) routes() http.Handler {
 	// using the mux.Handle() to register the file server as the hande for all the URL paths that start with "/static/" . For matching paths, we strip the "/static" before the request reaches the file server.
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
-	dynamic := alice.New(app.SessionManger.LoadAndSave,  noSurf)
+	dynamic := alice.New(app.SessionManger.LoadAndSave,  noSurf, app.Authenicate)
 
 	
 	// Normal routes [do not require authenticated to be true]
