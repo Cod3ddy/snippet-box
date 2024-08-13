@@ -105,7 +105,7 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 
 	// add a string value and the corresponding key to the session data
 
-	app.SessionManger.Put(r.Context(), "flash", "Snippet sucessfully created")
+	app.SessionManager.Put(r.Context(), "flash", "Snippet sucessfully created")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
 }
@@ -155,7 +155,7 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	app.SessionManger.Put(r.Context(), "flash", "Your signup was successful. Please log in.")
+	app.SessionManager.Put(r.Context(), "flash", "Your signup was successful. Please log in.")
 
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
@@ -186,7 +186,7 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := app.Users.Authenicate(form.Email, form.Password)
+	id, err := app.Users.Authenticate(form.Email, form.Password)
 	if err != nil{
 		if errors.Is(err, models.ErrInvalidCredentials){
 			form.AddNonFieldError("Email or password is incorrect")
@@ -200,32 +200,32 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.SessionManger.RenewToken(r.Context())
+	err = app.SessionManager.RenewToken(r.Context())
 	if err != nil{
 		app.serverError(w, r,err)
 		return
 	}
 
 	// Generate new session token
-	app.SessionManger.Put(r.Context(), "authenticatedUserID", id)
+	app.SessionManager.Put(r.Context(), "authenticatedUserID", id)
 
 	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
 }
 
 func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 	// Change current session id
-	err := app.SessionManger.RenewToken(r.Context())
+	err := app.SessionManager.RenewToken(r.Context())
 	if err != nil{
 		app.serverError(w, r,err)
 		return
 	}
 
 	// Remove token 
-	app.SessionManger.Remove(r.Context(), "authenticatedUserID")
+	app.SessionManager.Remove(r.Context(), "authenticatedUserID")
 
 	// Add flash message
 
-	app.SessionManger.Put(r.Context(), "flash", "You've been logged out successfully")
+	app.SessionManager.Put(r.Context(), "flash", "You've been logged out successfully")
 	
 	// Redirect to home page
 	http.Redirect(w, r, "/", http.StatusSeeOther)

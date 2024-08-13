@@ -83,7 +83,7 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 func (app *application) newTemplateData(r *http.Request) templateData {
 	return templateData{
 		CurrentYear: time.Now().Year(),
-		Flash:       app.SessionManger.PopString(r.Context(), "flash"),
+		Flash:       app.SessionManager.PopString(r.Context(), "flash"),
 		IsAuthenticated: app.isAuthenticated(r),
 		CSRFToken: nosurf.Token(r),
 	}

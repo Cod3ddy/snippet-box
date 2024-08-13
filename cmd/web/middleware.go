@@ -81,7 +81,7 @@ func noSurf(next http.Handler) http.Handler{
 
 func (app *application) Authenicate(next http.Handler) http.Handler{
 	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request){
-		id := app.SessionManger.GetInt(r.Context(), "authenticatedUserID")
+		id := app.SessionManager.GetInt(r.Context(), "authenticatedUserID")
 		if id == 0{
 			next.ServeHTTP(w, r)
 			return

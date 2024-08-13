@@ -15,7 +15,7 @@ func (app *application) routes() http.Handler {
 
 	mux.HandleFunc("GET /ping", ping)
 
-	dynamic := alice.New(app.SessionManger.LoadAndSave,  noSurf, app.Authenicate)
+	dynamic := alice.New(app.SessionManager.LoadAndSave,  noSurf, app.Authenicate)
 
 	
 	// Normal routes [do not require authenticated to be true]
