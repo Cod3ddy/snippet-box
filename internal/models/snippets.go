@@ -14,12 +14,25 @@ type Snippet struct {
 	Expires time.Time
 }
 
-// SnippetModel type which wraps a sql.DB connection pool.
-type SnippetModel struct {
+type SnippetModelInterface interface {
+    Insert(title string, content string, expires int) (int, error)
+    Get(id int) (Snippet, error)
+    Latest() ([]Snippet, error)
+ }
+
+type SnippetModelImpl struct{
 	DB *sql.DB
 }
 
-func (m *SnippetModel) Get(id int) (Snippet, error) {
+func NewSnippetModel(db *sql.DB) SnippetModelInterface{
+	return &SnippetModelImpl{DB: db}
+}
+// // SnippetModel type which wraps a sql.DB connection pool.
+// type SnippetModel struct {
+// 	DB *sql.DB
+// }
+
+func (m *SnippetModelImpl) Get(id int) (Snippet, error) {
 	stmt := `SELECT id, title, content, created, expires FROM snippets
     WHERE expires > UTC_TIMESTAMP() AND id = ?`
 
@@ -55,7 +68,7 @@ func (m *SnippetModel) Get(id int) (Snippet, error) {
 }
 
 // Return the 10 most recent created snippets
-func (m *SnippetModel) Latest() ([]Snippet, error) {
+func (m *SnippetModelImpl) Latest() ([]Snippet, error) {
 	stmt := `SELECT id, title, content, created, expires FROM snippets
     WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
 
@@ -95,7 +108,7 @@ func (m *SnippetModel) Latest() ([]Snippet, error) {
 	return snippets, nil
 }
 
-func (m *SnippetModel) Insert(title string, content string, expires int) (int, error) {
+func (m *SnippetModelImpl) Insert(title string, content string, expires int) (int, error) {
 	stmt := `INSERT INTO snippets (title, content, created, expires) VALUES 
 	(?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))`
 	// Use the Exec() method on the embedded connection pool to execute the

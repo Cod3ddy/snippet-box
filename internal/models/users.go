@@ -18,12 +18,26 @@ type User struct {
 	Created        time.Time
 }
 
-type UserModel struct{
+type UserModelInterface interface{
+	Insert(name, email, password string) error
+	Authenticate(email, password string) (int, error)
+	Exists (userID int) (bool, error)
+}
+
+type UserModelImpl struct{
 	DB *sql.DB
 }
 
+func NewUserModel(db *sql.DB) UserModelInterface{
+	return &UserModelImpl{DB: db}
+}
+
+// type UserModel struct{
+// 	DB *sql.DB
+// }
+
 // Add new user
-func (m *UserModel) Insert(name, email, password string) error{
+func (m *UserModelImpl) Insert(name, email, password string) error{
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil{
 		return err 
@@ -45,7 +59,7 @@ func (m *UserModel) Insert(name, email, password string) error{
 }
 
 
-func (m *UserModel) Authenicate(email, password string) (int, error){
+func (m *UserModelImpl) Authenticate(email, password string) (int, error){
 	var id int
 	var hashedPassword []byte
 
@@ -71,7 +85,7 @@ func (m *UserModel) Authenicate(email, password string) (int, error){
 	return id, nil
 }
 
-func (m *UserModel) Exists (userID int) (bool, error){
+func (m *UserModelImpl) Exists (userID int) (bool, error){
 	var exists bool
 	stmt := "SELECT EXISTS(SELECT true FROM users WHERE id = ?)"
 
