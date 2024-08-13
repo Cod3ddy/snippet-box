@@ -2,10 +2,12 @@ package main
 
 import (
 	"html/template"
+	"io/fs"
 	"path/filepath"
 	"time"
 
 	"github.com/Cod3ddy/snippet-box/internal/models"
+	"github.com/Cod3ddy/snippet-box/ui"
 )
 
 type templateData struct {
@@ -37,7 +39,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	// us a slice of all the filepaths for our application 'page' templates
 	// like: [ui/html/pages/home.tmpl ui/html/pages/view.tmpl]
 
-	pages, err := filepath.Glob("./ui/html/pages/*.html")
+	pages, err := fs.Glob(ui.Files, "html/pages/*.html")
 	if err != nil {
 		return nil, err
 	}
@@ -49,33 +51,25 @@ func newTemplateCache() (map[string]*template.Template, error) {
 
 		name := filepath.Base(page)
 
+		//filepath patterns for the templates we
+        // want to parse.
+		patterns := []string{
+			"html/base.html",
+			"html/partials/*.html",
+			page,
+		}
+
 		// Parse the base template file into a template set.
 
 		// The template.FuncMap must be registered with template set before you call
-		// the ParseFiles() method. This means we have to use tempalate.New()
+		// Use ParseFS() instead of ParseFiles() to parse the template files 
+        // from the ui.Files embedded filesystem.
 		// to Create an empty template set, iuse the Func() method to register the
 		// template.FuncMap, and then parse the file as normal
-		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.html")
+		ts, err := template.New(name).Funcs(functions).ParseFS(ui.Files, patterns...)
 		if err != nil {
 			return nil, err
 		}
-
-		// Call ParseGlob() *on this template set* to add any partials.
-
-		ts, err = ts.ParseGlob("./ui/html/partials/*.html")
-		if err != nil {
-			return nil, err
-		}
-
-		// Call Parse files *on this template set* to add the page template.
-
-		ts, err = ts.ParseFiles(page)
-		if err != nil {
-			return nil, err
-		}
-
-		//Add the template set to the map, using the name of the page
-		//(like 'home.html') as the key.
 
 		cache[name] = ts
 	}
