@@ -2,6 +2,8 @@
 
 {{define "main"}}
 <form action="/user/login" method="POST">
+    <!-- Include the CSRF token -->
+    <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
     <!-- Display any nonfield if the slice is not empty -->
     {{range .Form.NonFieldErrors}}
         <div class="error">{{.}}</div>
