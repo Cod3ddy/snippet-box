@@ -19,11 +19,11 @@ import (
 
 type application struct {
 	Logger        *slog.Logger
-	Snippets      *models.SnippetModel
-	Users         *models.UserModel
+	Snippets      models.SnippetModelInterface
+	Users         models.UserModelInterface
 	TemplateCache map[string]*template.Template
 	FormDecoder   *form.Decoder
-	SessionManger *scs.SessionManager
+	SessionManager *scs.SessionManager
 }
 
 func main() {
@@ -56,15 +56,19 @@ func main() {
 	sessionManager.Lifetime = 12 * time.Hour
 	sessionManager.Cookie.Secure = true
 
+	//Init models
+	snippetModel := models.NewSnippetModel(db)
+	userModel := models.NewUserModel(db)
 	app := application{
 		Logger:        logger,
-		Snippets:      &models.SnippetModel{DB: db},
-		Users:         &models.UserModel{DB: db},
+		Snippets:      snippetModel,
+		Users:         userModel,
 		TemplateCache: templateCache,
 		FormDecoder:   formDecoder,
-		SessionManger: sessionManager,
+		SessionManager: sessionManager,
 	}
 
+	
 	tlsConfig := &tls.Config{
 		CurvePreferences: []tls.CurveID{tls.X25519, tls.CurveP256},
 	}
