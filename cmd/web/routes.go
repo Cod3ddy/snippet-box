@@ -13,6 +13,8 @@ func (app *application) routes() http.Handler {
 	// serve static files from embed fs
 	mux.Handle("GET /static/", http.FileServerFS(ui.Files))
 
+	mux.HandleFunc("GET /ping", ping)
+
 	dynamic := alice.New(app.SessionManger.LoadAndSave,  noSurf, app.Authenicate)
 
 	
